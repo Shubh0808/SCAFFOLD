@@ -12,11 +12,11 @@ jobs:
     steps:
       # 1. Checkout repo
       - name: Checkout repository
-        uses: actions/checkout@v4   # ✅ updated to v4
+        uses: actions/checkout@v3
 
       # 2. Setup JDK 17
       - name: Set up JDK 17
-        uses: actions/setup-java@v4   # ✅ updated to v4
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -27,23 +27,25 @@ jobs:
 
       # 4. Upload JaCoCo coverage report
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4   # ✅ updated to v4
+        uses: actions/upload-artifact@v4   # updated to v4
         with:
           name: jacoco-report
           path: target/site/jacoco/
 
-      # 5. Run Semgrep scan
-      - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: .semgrep.yml
+      # 5. Install Semgrep
+      - name: Install Semgrep
+        run: pip install semgrep
 
-      # 6. Enforce 70% Security Pass threshold
+      # 6. Run Semgrep scan
+      - name: Run Semgrep
+        run: semgrep --config .semgrep.yml src/main/java
+
+      # 7. Enforce 70% Security Pass threshold
       - name: Enforce Semgrep threshold
         run: |
           # Count total rules applied and total findings
           total=$(semgrep --config .semgrep.yml src/main/java --json | jq '.results | length')
-          files=$(ls src/main/java/**/*.java | wc -l)
+          files=$(find src/main/java -name "*.java" | wc -l)
 
           if [ "$files" -eq 0 ]; then
             echo "⚠️ No source files found."
