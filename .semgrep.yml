@@ -1,0 +1,21 @@
+rules:
+  - id: no-eval
+    patterns:
+      - pattern: eval(...)
+    message: Avoid using eval(), it can lead to security vulnerabilities.
+    languages: [java]
+    severity: ERROR
+
+  - id: no-system-exec
+    patterns:
+      - pattern: Runtime.getRuntime().exec(...)
+    message: Avoid using Runtime.exec(), it can be exploited for remote code execution.
+    languages: [java]
+    severity: ERROR
+
+  - id: hardcoded-secret
+    patterns:
+      - pattern-regex: '(?i)(password|secret|apikey|token)\s*=\s*".+"'
+    message: Possible hardcoded secret or credential detected.
+    languages: [java]
+    severity: WARNING
